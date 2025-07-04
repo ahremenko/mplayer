@@ -1,0 +1,70 @@
+#docker run --name=catalog-db -e POSTGRES_USER=admin -e POSTGRES_PASSWORD=admin -e POSTGRES_DB=catalog -p 5435:5432 -d postgres:latest
+docker restart catalog-db
+docker ps
+
+systemctl start minio.service
+systemctl status minio.service
+
+
+python3 -m mreader
+
+# check
+alembic check
+
+# new commit:
+alembic revision --autogenerate -m "Change code_id"
+
+# create db-objects:
+alembic upgrade head
+
+
+
+pip-compile --verbose requirements.in
+
+# build the image
+docker build --no-cache -t mreader-app .
+
+# pack the image
+docker save mreader-app:latest | gzip > mreader-app.tar.gz
+
+# then copy mreader-app.tar.gz + .env to remote server
+
+# on remote server:
+gzip -d mreader-app.tar.gz
+tar xvf mreader-app.tar
+docker load -i mreader-app.tar
+docker images
+
+# before run check volume source, and run:
+docker run --env-file .env --network host -v ./data2:/code/data mreader-app
+
+# if tracks path is /mnt/fdisk/tracks then run that:
+docker run --env-file .env --network host -v /mnt/fdisk/tracks:/code/data mreader-app
+
+
+
+
+
+# clear unused images in docker
+docker images
+docker rmi -f image e86fd21433e7 77e1be9d8fc2
+
+
+.env:
+DB_HOST=
+DB_USER=
+DB_PASSWORD=
+DB_DATABASE=
+DB_PORT=
+ACCESS_KEY=
+SECRET_KEY=
+MINIO_HOST=
+MINIO_PORT=
+
+
+
+
+
+
+
+

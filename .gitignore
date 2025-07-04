@@ -1,0 +1,9 @@
+/mplayer.log
+/data/
+/.env
+/data2/
+**/__pycache__/
+/alembic.ini
+/alembic/README
+/alembic/script.py.mako
+/.idea
